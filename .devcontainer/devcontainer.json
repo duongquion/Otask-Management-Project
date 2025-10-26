@@ -3,7 +3,7 @@
 	"dockerComposeFile": "../contrib/container/docker-compose.dev.yml",
 	"service": "otask-server",
 	"workspaceFolder": "/src/backend/otaskmanagement",
-	"overrideCommand": true,
+	"overrideCommand": false,
 	"forwardPorts": [
 		8000,
 		5434
