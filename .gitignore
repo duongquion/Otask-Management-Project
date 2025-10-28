@@ -1,3 +1,2 @@
 # enviroment
-.env
-.dev.env
+contrib\container\docker.dev.env
