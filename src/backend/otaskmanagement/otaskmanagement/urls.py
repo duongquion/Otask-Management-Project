@@ -16,10 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from users.allauth import GoogleLogin
+from users.api import me_google
+from dj_rest_auth.jwt_auth import get_refresh_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('auth/', include('dj_rest_auth.urls')),
-    path('accounts/', include('allauth.urls')),
-    path('auth/registration/', include('dj_rest_auth.registration.urls')),
+    # dj-rest-auth chuẩn
+    path("auth/", include("dj_rest_auth.urls")),
+    path("auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("auth/token/refresh/", get_refresh_view().as_view(), name="token_refresh"),
+
+    # Social login (BE-only)
+    path("api/auth/google/login/", GoogleLogin.as_view(), name="google_login"),
+
+    # Lấy dữ liệu Google đã lưu
+    path("api/me/google/", me_google, name="me_google"),
+
+    # Allauth URLs (nếu muốn test redirect flow qua trình duyệt)
+    path("accounts/", include("allauth.urls")),
 ]
