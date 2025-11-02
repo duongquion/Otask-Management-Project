@@ -21,7 +21,7 @@ class GoogleLogin(SocialLoginView):
         access = refresh.access_token
 
         google = SocialAccount.objects.filter(user=user, provider="google").first()
-        extra = google.extra_data if google else {}
+        extra = google.extra_data if google else None
 
         data = {
             "access": str(access),
