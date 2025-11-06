@@ -20,10 +20,4 @@ def me_google(request):
         },
         "has_access_token": bool(token and token.token),
     })
-
-# Viết thêm API cho phần Login bằng email -> password
-# Viết thêm API cho phần đăng ký bằng email -> password -> confirm-password
-# Change-password
-# Reset-password
-# Logout
-# --> Tất cả được viết sẳn ở django-rest-auth chỉ cần định nghĩa enpoint urls thôi
+    

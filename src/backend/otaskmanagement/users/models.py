@@ -1,18 +1,12 @@
 from django.db import models
-from django.conf import settings
 
 from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
-    AbstractUser
 )
 
 from django.utils.translation import gettext_lazy as _
-
-from common.models import BaseModel
-from project.models import Project
-
-from .ruleset import RoleEnum
+from otaskmanagement.models import BaseModel
 from .manager import CustomUserManager
 
 
@@ -46,36 +40,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
         fn = (self.first_name or " ").strip()
         ln = (self.last_name or " ").strip()
         return fn + ln or None
-
-
-class ProjectMembership(BaseModel):
-    member = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="memberships",
-        verbose_name=_("Member"),
-    )
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        related_name="project_memberships",
-        verbose_name=_("Project"),
-    )
-    role = models.CharField(
-        max_length=32, choices=RoleEnum.choices, default=RoleEnum.ADMINISTRATOR
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=("member", "project"), name="uq_member_project"
-            )
-        ]
-
-        indexes = [
-            models.Index(fields=("project", "role")),
-            models.Index(fields=("member",)),
-        ]
-
-    def __str__(self):
-        return self.member - self.project
