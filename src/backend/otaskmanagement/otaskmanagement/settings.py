@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
 
     # Apps
-    "common",
     "users",
     "project",
 ]
