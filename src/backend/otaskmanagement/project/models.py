@@ -1,3 +1,5 @@
+"""Project database model definitions."""
+
 from django.conf import settings
 
 from django.db import models
@@ -7,6 +9,8 @@ from users.ruleset import RoleEnum
 
 
 class Project(BaseModel):
+    """Model for Project"""
+
     name = models.CharField(verbose_name=_("Project name"))
     key = models.CharField(verbose_name=_("Project key"))
     members = models.ManyToManyField(
@@ -15,18 +19,22 @@ class Project(BaseModel):
         through_fields=("project", "member"),
         related_name="projects",
     )
-    
+
     def __str__(self):
         return f"{self.name} - {self.key}"
 
 
 class AccessType(models.TextChoices):
+    """Defines access-level options for project visibility."""
+
     PRIVATE = "private", _("Private")
     LIMITED = "limited", _("Limited")
     OPEN = "open", _("Open")
 
 
 class ProjectMembership(BaseModel):
+    """Model for ProjectMembership"""
+
     member = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -42,7 +50,9 @@ class ProjectMembership(BaseModel):
     role = models.CharField(
         max_length=32, choices=RoleEnum.choices, default=RoleEnum.ADMINISTRATOR
     )
-    access = models.CharField(max_length=10, choices=AccessType.choices, default=AccessType.OPEN)
+    access = models.CharField(
+        max_length=10, choices=AccessType.choices, default=AccessType.OPEN
+    )
 
     class Meta:
         constraints = [
@@ -55,9 +65,14 @@ class ProjectMembership(BaseModel):
             models.Index(fields=("project", "role")),
             models.Index(fields=("member",)),
         ]
-    
+
     def save(self, *args, **kwargs):
-        print("z"*100)
+        """
+        Temporary override for debugging save() calls.
+        Prints a marker when the model is saved.
+        """
+
+        print("z" * 100)
         return super().save(*args, **kwargs)
 
     def __str__(self):

@@ -1,36 +1,49 @@
+"""
+Root URL configuration for the project.
+
+This file organizes routes into groups:
+- Core Django admin
+- Authentication (session, JWT, password reset, registration)
+- Social authentication (Google)
+- Application modules (User, Project)
+"""
+
 from django.contrib import admin
 from django.urls import path, include
-from users.allauth import GoogleLogin
-from users.api import me_google
-from dj_rest_auth.jwt_auth import get_refresh_view
-from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
+from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from users.allauth import GoogleLogin, me_google
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    
-    # Auth with defaut
+    # -------------------------
+    # Django Admin
+    # -------------------------
+    path("admin/", admin.site.urls),
+    # -------------------------
+    # Authentication: Default (dj-rest-auth)
+    # -------------------------
     path("auth/", include("dj_rest_auth.urls")),
-    
-    # password/reset/?$,
+    # Password reset (customized)
     path("auth/reset-password/", PasswordResetView.as_view(), name="reset-password"),
-    # password/reset/confirm/?$
-    path("auth/confirm-reset-password/", PasswordResetConfirmView.as_view(), name="confirm-reset-password"),
-    
-    # login/?$
-    # # URLs that require a user to be logged in with a valid session / token.
-    # logout/?$
-    # user/?$
-    # password/change/?$
-    
-    path("auth/registration/", include('dj_rest_auth.registration.urls')),
-    path("auht/token/refresh/", get_refresh_view().as_view(), name="token_refresh"),
-
-    # Auth with social media
-    path("api/auth/google/login/", GoogleLogin.as_view(), name="google_login"),
-    path("api/me/google/", me_google, name="me_google"),
-    
-    # App urls
+    path(
+        "auth/confirm-reset-password/",
+        PasswordResetConfirmView.as_view(),
+        name="confirm-reset-password",
+    ),
+    # Registration
+    path("auth/registration/", include("dj_rest_auth.registration.urls")),
+    # JWT Token refresh
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # -------------------------
+    # Social Authentication (Google)
+    # -------------------------
+    path("auth/google/login/", GoogleLogin.as_view(), name="google_login"),
+    path("auth/google/me/", me_google, name="me_google"),
+    # -------------------------
+    # Application Modules
+    # -------------------------
     path("user/", include("users.urls")),
     path("project/", include("project.urls")),
 ]
