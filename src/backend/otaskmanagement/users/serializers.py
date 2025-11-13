@@ -1,4 +1,3 @@
-import email
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -7,6 +6,8 @@ try:
     from allauth.account.adapter import get_adapter
 except ImportError:
     raise ImportError('allauth needs to be added to INSTALLED_APPS.')
+
+from .models import CustomUser as User
 
 STAFF_DOMAIN = ["otask.com", "admin.otask.com"]
 
@@ -42,3 +43,16 @@ class UserRegisterSerializer(RegisterSerializer):
         self.custom_signup(request, user)
         setup_user_email(request, user, [])
         return user
+    
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+        
+class UserDetailSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source="fullname", read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ["full_name", "code", "last_login", "email", "is_active"]
