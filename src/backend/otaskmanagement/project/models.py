@@ -9,7 +9,22 @@ from users.ruleset import RoleEnum
 class Project(BaseModel):
     name = models.CharField(verbose_name=_("Project name"))
     key = models.CharField(verbose_name=_("Project key"))
+    members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through="ProjectMembership",
+        through_fields=("project", "member"),
+        related_name="projects",
+    )
     
+    def __str__(self):
+        return f"{self.name} - {self.key}"
+
+
+class AccessType(models.TextChoices):
+    PRIVATE = "private", _("Private")
+    LIMITED = "limited", _("Limited")
+    OPEN = "open", _("Open")
+
 
 class ProjectMembership(BaseModel):
     member = models.ForeignKey(
@@ -27,11 +42,12 @@ class ProjectMembership(BaseModel):
     role = models.CharField(
         max_length=32, choices=RoleEnum.choices, default=RoleEnum.ADMINISTRATOR
     )
+    access = models.CharField(max_length=10, choices=AccessType.choices, default=AccessType.OPEN)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("member", "project"), name="uq_member_project"
+                fields=("member", "project"), name="unique_member_project"
             )
         ]
 
@@ -39,6 +55,10 @@ class ProjectMembership(BaseModel):
             models.Index(fields=("project", "role")),
             models.Index(fields=("member",)),
         ]
+    
+    def save(self, *args, **kwargs):
+        print("z"*100)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.member - self.project
+        return f"[MEMBER]: {self.member} - [PROJECT]: {self.project} - [ROLE]: {self.role} - [ACCESS]: {self.access}"

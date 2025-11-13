@@ -3,7 +3,8 @@ from django.urls import path, include
 from users.allauth import GoogleLogin
 from users.api import me_google
 from dj_rest_auth.jwt_auth import get_refresh_view
-from dj_rest_auth.views import PasswordChangeView, PasswordResetConfirmView, PasswordResetView
+from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +29,8 @@ urlpatterns = [
     # Auth with social media
     path("api/auth/google/login/", GoogleLogin.as_view(), name="google_login"),
     path("api/me/google/", me_google, name="me_google"),
+    
+    # App urls
+    path("user/", include("users.urls")),
+    path("project/", include("project.urls")),
 ]
