@@ -2,7 +2,7 @@
 
 from rest_framework import permissions
 
-from otaskmanagement.mixins import OtaskMixinDetailView, ListAPIView
+from otaskmanagement.mixins import OtaskMixinDetailView, ListAPI
 
 from .serializers import (
     WriteProjectMembershipSerializer,
@@ -10,11 +10,10 @@ from .serializers import (
     ProjectSerializer,
 )
 from .models import Project, ProjectMembership
+from otaskmanagement.utils import METHOD
 
-METHOD = ["POST", "PUT", "PATCH", "DELETE"]
 
-
-class ProjectAPIView(ListAPIView):
+class ProjectAPIView(ListAPI):
     """Returns a read-only list of Project records."""
 
     permission_classes = [permissions.IsAuthenticated]
@@ -27,8 +26,6 @@ class ProjectMembershipAPIView(OtaskMixinDetailView):
 
     permission_classes = [permissions.IsAuthenticated]
     queryset = ProjectMembership.objects.select_related("member", "project")
-    lookup_field = "pk"
-    lookup_url_kwarg = "pk"
 
     def get_serializer_class(self):
         if self.request.method in METHOD:
