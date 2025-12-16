@@ -16,8 +16,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectMembershipSerializer(serializers.ModelSerializer):
-    member = UserSerializer()
-    project = ProjectSerializer()
+    # member = UserSerializer()
+    # project = ProjectSerializer()
 
     class Meta:
         model = ProjectMembership
@@ -39,14 +39,12 @@ class WriteProjectMembershipSerializer(serializers.Serializer):
 
         project_key = FormatProjectKey(project_name)
         project, prj_created = Project.objects.get_or_create(
-            key=project_key, defaults={"name": project_name}
+            key=project_key, defaults={"name": project_name, "access": access_choice}
         )
 
         defaults = {}
         if role_choice is not None and role_choice != "":
             defaults["role"] = role_choice
-        if access_choice is not None and access_choice != "":
-            defaults["access"] = access_choice
 
         membership, mbs_created = ProjectMembership.objects.get_or_create(
             project=project, member=member_name, defaults=defaults or None
@@ -59,21 +57,19 @@ class WriteProjectMembershipSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
 
         project_name = validated_data.get("project", None)
+        access_choice = validated_data.get("access", None)
+
         if project_name is not None:
             project_key = FormatProjectKey(project_name)
             project, _ = Project.objects.get_or_create(
                 key=project_key,
-                defaults={"name": project_name},
+                defaults={"name": project_name, "access": access_choice},
             )
             instance.project = project
 
         role_choice = validated_data.get("role", None)
         if role_choice is not None:
             instance.role = role_choice
-
-        access_choice = validated_data.get("access", None)
-        if access_choice is not None:
-            instance.access = access_choice
 
         instance.save()
         self._created = False

@@ -2,6 +2,9 @@
 Provides shared utility functions used across the project.
 """
 
+METHOD = ["POST", "PUT", "PATCH", "DELETE"]
+
+
 def FormatProjectKey(name: str):
     """
     Generate a project key from a project name by taking the first

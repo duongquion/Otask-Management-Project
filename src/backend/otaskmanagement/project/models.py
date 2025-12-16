@@ -8,6 +8,14 @@ from django.utils.translation import gettext_lazy as _
 from users.ruleset import RoleEnum
 
 
+class AccessType(models.TextChoices):
+    """Defines access-level options for project visibility."""
+
+    PRIVATE = "private", _("Private")
+    LIMITED = "limited", _("Limited")
+    OPEN = "open", _("Open")
+
+
 class Project(BaseModel):
     """Model for Project"""
 
@@ -19,17 +27,12 @@ class Project(BaseModel):
         through_fields=("project", "member"),
         related_name="projects",
     )
+    access = models.CharField(
+        max_length=10, choices=AccessType.choices, default=AccessType.OPEN
+    )
 
     def __str__(self):
         return f"{self.name} - {self.key}"
-
-
-class AccessType(models.TextChoices):
-    """Defines access-level options for project visibility."""
-
-    PRIVATE = "private", _("Private")
-    LIMITED = "limited", _("Limited")
-    OPEN = "open", _("Open")
 
 
 class ProjectMembership(BaseModel):
@@ -50,9 +53,7 @@ class ProjectMembership(BaseModel):
     role = models.CharField(
         max_length=32, choices=RoleEnum.choices, default=RoleEnum.ADMINISTRATOR
     )
-    access = models.CharField(
-        max_length=10, choices=AccessType.choices, default=AccessType.OPEN
-    )
+    is_accepted = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
@@ -76,4 +77,6 @@ class ProjectMembership(BaseModel):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"[MEMBER]: {self.member} - [PROJECT]: {self.project} - [ROLE]: {self.role} - [ACCESS]: {self.access}"
+        return (
+            f"[MEMBER]: {self.member} - [PROJECT]: {self.project} - [ROLE]: {self.role}"
+        )

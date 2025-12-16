@@ -1,10 +1,19 @@
 """Custom mixins for (API) view in the whole project"""
 
-from rest_framework import mixins, generics
+from rest_framework import mixins, generics, status
+from rest_framework.response import Response
 
 
-class ListAPIView(generics.ListAPIView):
+class ListAPI(generics.ListAPIView):
     """Provides a read-only list API for the model."""
+
+
+class ListCreateAPI(generics.ListCreateAPIView):
+    """Provides a list and create view for the model"""
+
+
+class RetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
+    """Provides a detail view API for the model."""
 
 
 class OtaskMixinDetailView(
@@ -22,12 +31,17 @@ class OtaskMixinDetailView(
 
     def get(self, request, *args, **kwargs):
         """Custom get method to pass kwargs."""
-        if self.kwargs.get(self.lookup_url_kwarg):
+        if self.kwargs.get(self.lookup_url_kwarg) is not None:
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """Custom post method to pass kwargs."""
+        if self.kwargs.get(self.lookup_url_kwarg) is not None:
+            return Response(
+                {"detail": "Method 'POST' not allowed on detail endpoint."},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
         return self.create(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):

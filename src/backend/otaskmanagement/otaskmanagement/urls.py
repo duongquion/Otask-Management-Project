@@ -15,6 +15,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from users.allauth import GoogleLogin, me_google
 
+import issues.urls
+
 
 urlpatterns = [
     # -------------------------
@@ -46,4 +48,6 @@ urlpatterns = [
     # -------------------------
     path("user/", include("users.urls")),
     path("project/", include("project.urls")),
+    path("sprint/", include(issues.urls.sprint_api_urls)),
+    path("email/", include("common.urls")),
 ]
