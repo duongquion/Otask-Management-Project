@@ -1,9 +1,10 @@
 from rest_framework import serializers
+from users.ruleset import RoleEnum
 
 
-class TestEmailSerializer(serializers.Serializer):
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    role = serializers.ChoiceField(choices=RoleEnum.choices, required=True)
 
     class Meta:
-        fields = ["email"]
-
-    email = serializers.EmailField(required=True)
+        fields = ["email", "role"]
