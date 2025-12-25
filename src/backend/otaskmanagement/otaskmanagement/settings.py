@@ -236,3 +236,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "quyonduong@gmail.com"
 EMAIL_HOST_PASSWORD = "xbvd tvhz fgec ujvx"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+LOCAL_DOMAIN = "http://localhost:8000/"
