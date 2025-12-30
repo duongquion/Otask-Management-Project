@@ -3,10 +3,12 @@ from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
+    Permission,
 )
 
 from django.utils.translation import gettext_lazy as _
 from otaskmanagement.models import BaseModel
+from users.ruleset import RoleEnum
 from .manager import CustomUserManager
 
 
@@ -40,3 +42,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
         fn = (self.first_name or " ").strip()
         ln = (self.last_name or " ").strip()
         return fn + ln or None
+
+
+class RolePermission(models.Model):
+    role = models.CharField(max_length=32, choices=RoleEnum.choices, default=RoleEnum.ADMINISTRATOR,)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("role", "permission")

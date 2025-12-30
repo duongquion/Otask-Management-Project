@@ -29,7 +29,7 @@ CSRF_TRUSTED_ORIGINS = [
 # ------------------------------------------------------------------ #
 # Applications
 # ------------------------------------------------------------------ #
-INSTALLED_APPS = [
+DJANGO_SYSTEM_APPS = [
     # Django core
     "django.contrib.admin",
     "django.contrib.auth",
@@ -38,16 +38,25 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+]
+
+ALLAUTH_APPS = [
     # Allauth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+]
+
+THIRD_PARTY_APPS = [
     # DRF + auth
     "rest_framework",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "rest_framework.authtoken",
+]
+
+PROJECT_APPS = [
     # Apps
     "users",
     "project",
@@ -55,9 +64,16 @@ INSTALLED_APPS = [
     "common",
 ]
 
+INSTALLED_APPS = (
+    DJANGO_SYSTEM_APPS
+    + ALLAUTH_APPS
+    + THIRD_PARTY_APPS
+    + PROJECT_APPS
+)
 
 SITE_ID = 1
 AUTH_USER_MODEL = "users.CustomUser"
+PROJECT_APP_LABELS = {app.split('.')[-1] for app in PROJECT_APPS}
 
 # ------------------------------------------------------------------ #
 # Middleware

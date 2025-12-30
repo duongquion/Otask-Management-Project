@@ -3,7 +3,6 @@
 from rest_framework import serializers
 
 from .models import Project, ProjectMembership, RoleEnum, AccessType
-from users.serializers import UserSerializer
 from otaskmanagement.utils import FormatProjectKey
 
 

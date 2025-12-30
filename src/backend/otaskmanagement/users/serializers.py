@@ -22,6 +22,12 @@ class UserRegisterSerializer(RegisterSerializer):
     """
 
     username = None
+    
+    def validate(self, data):
+        email = data["email"]
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError({"email": "Email have already exists"})
+        return super().validate(data)
 
     def validate_password1(self, password):
         email = (self.initial_data.get("email") or "").strip().lower()
