@@ -31,9 +31,9 @@ urlpatterns = [
     # Password reset (customized)
     path("auth/reset-password/", PasswordResetView.as_view(), name="reset-password"),
     path(
-        "auth/confirm-reset-password/",
+        "auth/confirm-reset-password/<uidb64>/<token>/",
         PasswordResetConfirmView.as_view(),
-        name="confirm-reset-password",
+        name="password_reset_confirm",
     ),
     # Registration
     path("auth/registration/", include("dj_rest_auth.registration.urls")),
@@ -47,10 +47,12 @@ urlpatterns = [
     # -------------------------
     # Application Modules
     # -------------------------
-    path("user/", include("users.urls")),
+    path("<uuid:project_id>/", include([
+        path("user/", include("users.urls")),
+        path("sprint/", include(issues.urls.sprint_api_urls)),
+    ])),
+    path("email-invite/", include("common.urls")),
     path("project/", include("project.urls")),
-    path("sprint/", include(issues.urls.sprint_api_urls)),
-    path("email/", include("common.urls")),
     # -------------------------
     # API Testing
     # -------------------------
