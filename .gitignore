@@ -1,3 +1,8 @@
 *.env
 *.dev.env
 *.env.*
+/_data/
+/_data/**
+/_data/postgres/
+contrib/container/_data/
+contrib/container/_data/**
