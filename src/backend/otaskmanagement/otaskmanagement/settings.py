@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
     "dj_rest_auth.registration",
     "rest_framework.authtoken",
     "corsheaders",
+    "celery",
 ]
 
 PROJECT_APPS = [
@@ -91,6 +92,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# ------------------------------------------------------------------ #
+# CORS setting
+# ------------------------------------------------------------------ #
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -130,6 +134,13 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# ------------------------------------------------------------------ #
+# Celery
+# ------------------------------------------------------------------ #
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_TIMEZONE = "Asia/Ho_Chi_Minh"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 # ------------------------------------------------------------------ #
 # URLs / WSGI
 # ------------------------------------------------------------------ #

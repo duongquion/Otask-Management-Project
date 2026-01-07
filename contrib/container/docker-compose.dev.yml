@@ -16,6 +16,15 @@ services:
       retries: 5
       start_period: 30s
 
+  otask-redis:
+    image: redis:alpine
+    container_name: otask-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./_data/redis:/data
+    command: redis-server --appendonly yes
+
   otask-server:
     build:
       context: ../..
@@ -33,6 +42,8 @@ services:
     depends_on:
       otask-dev-db:
         condition: service_healthy
+      otask-redis:
+        condition: service_started
     command: >
       sh -c '
         python manage.py migrate || true;
@@ -42,6 +53,22 @@ services:
           echo "[crash] restarting in 1s..."; sleep 1;
         done
       '
+
+  otask-celery:
+    build:
+      context: ../..
+      dockerfile: contrib/container/Dockerfile
+      target: backend_dev
+    container_name: otask-celery
+    volumes:
+      - ../../src/backend/otaskmanagement:/src/backend/otaskmanagement:cached
+    depends_on:
+      - otask-dev-db
+      - otask-redis
+    env_file:
+      - ./docker.dev.env
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A otaskmanagement worker -l info
+
   otask-client:
     build:
       context: ../../src/frontend
@@ -63,5 +90,6 @@ services:
       '
     depends_on:
       - otask-server
+  
 volumes:
-  postgres_data:
+  redis_data:
