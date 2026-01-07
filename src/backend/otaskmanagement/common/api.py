@@ -25,10 +25,15 @@ class SendEmailMember(APIView):
                 project_id=project_id,
                 email=serializer.validated_data["email"],
                 role=serializer.validated_data["role"],
-                invited_by=request.user,
+                user=request.user.id,
             )
 
-            return Response({"detail": "Invitation sent successfully"}, status=200)
+            return Response(
+                {
+                    "detail": "Request received. The email should arrive in a few minutes."
+                },
+                status=200,
+            )
 
         except Exception as e:
             return Response({"Message": str(e)}, status=500)

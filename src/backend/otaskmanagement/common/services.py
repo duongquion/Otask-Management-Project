@@ -5,12 +5,13 @@ from django.core import signing
 from django.utils import timezone
 from django.conf import settings
 from django.db import transaction
-from django.template.loader import render_to_string
 
 from rest_framework.exceptions import ValidationError
 
 from common.models import ProjectInvitation
+from common.tasks import send_project_invite_email
 from project.models import Project, ProjectMembership
+from users.models import CustomUser
 
 INVITE_TOKEN_SALT = "project-invite"
 
@@ -22,44 +23,17 @@ def genarate_user_token(project_id, email: str):
         "project": str(project_id),
         "type": "project_invite",
     }
+    from django.core import signing
 
     token = signing.dumps(pay_load, salt=INVITE_TOKEN_SALT)
 
     return token
 
 
-def send_project_invite_email(to_email, verify_url, project_name):
-    subject = f"You've been invited to join project {project_name}"
-
-    text_content = (
-        f"You have been invited to join project {project_name}.\n"
-        f"Open this link to accept:\n{verify_url}"
-    )
-
-    html_content = render_to_string(
-        "email/project_invite.html",
-        {
-            "project_name": project_name,
-            "verify_url": verify_url,
-        },
-    )
-
-    from django.core.mail import EmailMultiAlternatives
-
-    email = EmailMultiAlternatives(
-        subject=subject,
-        body=text_content,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[to_email],
-    )
-
-    email.attach_alternative(html_content, "text/html")
-    email.send(fail_silently=False)
-
-
-def send_project_invitation(project_id, email, role, invited_by):
+def send_project_invitation(project_id, email, role, user):
 
     project = Project.objects.get(id=project_id)
+    invited_by = CustomUser.objects.get(id=user)
 
     if ProjectInvitation.objects.filter(
         project=project_id,
@@ -82,7 +56,7 @@ def send_project_invitation(project_id, email, role, invited_by):
 
     verify_url = f"{settings.LOCAL_DOMAIN}email/invite/verify?token={token}"
 
-    send_project_invite_email(
+    send_project_invite_email.delay(
         to_email=email, verify_url=verify_url, project_name=project.name
     )
 
