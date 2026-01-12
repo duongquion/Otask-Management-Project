@@ -9,8 +9,7 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
-    
-    # --- 1. SETUP SERVICE DB ---
+
     services:
       postgres:
         image: postgres:17
@@ -36,7 +35,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    # --- 2. KHAI BÁO BIẾN MÔI TRƯỜNG CHUNG ---
     env:
       WORKING_DIR: ./src/backend/otaskmanagement
       REQ_DIR: ./src/backend
@@ -59,7 +57,6 @@ jobs:
         if [ -f requirements.pip ]; then pip install -r requirements.pip; fi
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    # --- 3. TẠO FILE .ENV (ĐÃ SỬA LỖI) ---
     - name: Create .env file
       working-directory: ${{ env.WORKING_DIR }}
       run: |
