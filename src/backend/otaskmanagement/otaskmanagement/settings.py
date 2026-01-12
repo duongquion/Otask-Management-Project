@@ -30,7 +30,6 @@ CSRF_TRUSTED_ORIGINS = [
 # Applications
 # ------------------------------------------------------------------ #
 DJANGO_SYSTEM_APPS = [
-    # Django core
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,7 +40,6 @@ DJANGO_SYSTEM_APPS = [
 ]
 
 ALLAUTH_APPS = [
-    # Allauth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -49,33 +47,27 @@ ALLAUTH_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    # DRF + auth
     "rest_framework",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "rest_framework.authtoken",
     "corsheaders",
     "celery",
+    "django_celery_beat",
 ]
 
 PROJECT_APPS = [
-    # Apps
     "users",
     "project",
     "issues",
     "common",
 ]
 
-INSTALLED_APPS = (
-    DJANGO_SYSTEM_APPS
-    + ALLAUTH_APPS
-    + THIRD_PARTY_APPS
-    + PROJECT_APPS
-)
+INSTALLED_APPS = DJANGO_SYSTEM_APPS + ALLAUTH_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 SITE_ID = 1
 AUTH_USER_MODEL = "users.CustomUser"
-PROJECT_APP_LABELS = {app.split('.')[-1] for app in PROJECT_APPS}
+PROJECT_APP_LABELS = {app.split(".")[-1] for app in PROJECT_APPS}
 
 # ------------------------------------------------------------------ #
 # Middleware
@@ -141,6 +133,7 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TIMEZONE = "Asia/Ho_Chi_Minh"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # ------------------------------------------------------------------ #
 # URLs / WSGI
 # ------------------------------------------------------------------ #
@@ -265,11 +258,15 @@ SIMPLE_JWT = {
 # SendEmail
 # ------------------------------------------------------------------ #
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "quyonduong@gmail.com"
-EMAIL_HOST_PASSWORD = "xbvd tvhz fgec ujvx"
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-LOCAL_DOMAIN = "http://localhost:8000/"
+
+# ------------------------------------------------------------------ #
+# Domain
+# ------------------------------------------------------------------ #
+LOCAL_DOMAIN = os.getenv("LOCAL_DOMAIN")
