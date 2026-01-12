@@ -1,3 +1,4 @@
+from multiprocessing import context
 from rest_framework.exceptions import ValidationError
 from rest_framework import permissions
 from rest_framework.views import APIView, Response
@@ -18,7 +19,7 @@ class SendEmailMember(APIView):
         try:
             project_id = self.kwargs["pk"]
 
-            serializer = EmailSerializer(data=request.data)
+            serializer = EmailSerializer(data=request.data, context = {"project_id": project_id})
             serializer.is_valid(raise_exception=True)
 
             send_project_invitation(

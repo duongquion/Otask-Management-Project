@@ -34,10 +34,10 @@ def send_project_invite_email(to_email, verify_url, project_name):
         email.attach_alternative(html_content, "text/html")
         result = email.send(fail_silently=False)
 
-        if result == 1:
-            logger.info("Successfully for send the email")
-        else:
+        if result == 0:
             logger.warning("No emails were sent.")
 
+        logger.info("Successfully for send the email")
+
     except Exception as e:
-        logger.warning(f"Error is: {e}")
+        logger.warning(f"[ERROR]: {e}")
