@@ -39,6 +39,8 @@ jobs:
       WORKING_DIR: ./src/backend/otaskmanagement
       REQ_DIR: ./src/backend
       PYTHONUNBUFFERED: 1
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
 
     steps:
     - name: Checkout code
