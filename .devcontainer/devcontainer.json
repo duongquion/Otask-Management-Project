@@ -1,0 +1,27 @@
+{
+	"name": "otask dev",
+	"dockerComposeFile": "../contrib/container/docker-compose.dev.yml",
+	"service": "otask-server",
+	"workspaceFolder": "/src/backend/otaskmanagement",
+	"overrideCommand": false,
+	"forwardPorts": [
+		8000,
+		5434
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-azuretools.vscode-docker"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"remote.otherPortsAttributes": {
+					"onAutoForward": "ignore"
+				}
+			}
+		}
+	}
+}

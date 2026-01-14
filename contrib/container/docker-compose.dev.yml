@@ -1,0 +1,106 @@
+x-app-base: &app_base
+    build:
+      context: ../..
+      dockerfile: contrib/container/Dockerfile
+      target: backend_dev
+    volumes:
+      - ../../src/backend/otaskmanagement:/src/backend/otaskmanagement:cached
+    env_file:
+      - ./docker.dev.env
+    depends_on:
+      otask-dev-db:
+        condition: service_healthy
+      otask-redis:
+        condition: service_started
+    restart: unless-stopped
+services:
+  otask-dev-db:
+    image: postgres:17
+    container_name: otask-dev-db
+    restart: always
+    env_file: 
+      - ./docker.dev.env
+    volumes:
+      - ./_data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U otask -d otask_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  otask-redis:
+    image: redis:alpine
+    container_name: otask-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./_data/redis:/data
+    command: redis-server --appendonly yes
+
+  otask-server:
+    <<: *app_base
+    container_name: otask-server
+    image: otask-dev-image
+    ports:
+      - 8000:8000
+    command: >
+      sh -c '
+        python manage.py migrate || true;
+        while true; do
+          python -m watchfiles --filter python \
+            "python manage.py runserver 0.0.0.0:8000 --noreload";
+          echo "[crash] restarting in 1s..."; sleep 1;
+        done
+      '
+
+  otask-celery:
+    <<: *app_base
+    container_name: otask-celery
+    # command: watchmedo auto-restart 
+    #   --directory=./ 
+    #   --pattern=*.py 
+    #   --recursive 
+    #   --debug-force-polling  
+    #   -- celery -A otaskmanagement worker -l info
+    command: celery -A otaskmanagement worker -l info
+
+  otask-celery-beat:
+    <<: *app_base
+    container_name: otask-celery-beat
+    volumes:
+      - ../../src/backend/otaskmanagement:/src/backend/otaskmanagement:cached
+    # command: watchmedo auto-restart 
+    #   --directory=./ 
+    #   --pattern=*.py 
+    #   --recursive 
+    #   --debug-force-polling  
+    #   -- celery -A otaskmanagement beat -l info
+    command: celery -A otaskmanagement beat -l info
+
+  otask-client:
+    build:
+      context: ../../src/frontend
+      dockerfile: Dockerfile
+    container_name: otask-client
+    image: otask-frontend-dev-image
+    ports:
+      - 5173:5173
+    volumes:
+      - ../../src/frontend:/src/frontend:cached
+      - /src/frontend/node_modules
+    env_file:
+      - ./docker.dev.env
+    restart: unless-stopped
+    command: >
+      sh -c '
+        npm install;
+        npm run dev -- --host
+      '
+    depends_on:
+      - otask-server
+  
+volumes:
+  redis_data:
