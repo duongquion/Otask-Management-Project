@@ -3,7 +3,7 @@ x-app-base: &app_base
       context: ../..
       dockerfile: contrib/container/Dockerfile
     volumes:
-      - ../../src/backend/otaskmanagement:/src/backend/otaskmanagement:cached
+      - ../../src/backend/otaskmanagement:/app:cached
     env_file:
       - ./docker.dev.env
     depends_on:
@@ -43,6 +43,7 @@ services:
     <<: *app_base
     container_name: otask-server
     image: otask-dev-image
+    user: root
     ports:
       - 8000:8000
     command: >

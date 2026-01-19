@@ -2,7 +2,7 @@
 	"name": "otask dev",
 	"dockerComposeFile": "../contrib/container/docker-compose.dev.yml",
 	"service": "otask-server",
-	"workspaceFolder": "/src/backend/otaskmanagement",
+	"workspaceFolder": "/app",
 	"remoteUser": "root",
 	"overrideCommand": false,
 	"forwardPorts": [
