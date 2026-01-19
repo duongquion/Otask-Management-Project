@@ -5,12 +5,17 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-
+    user: root
+    entrypoint: ["/bin/sh", "-c"]
     volumes:
       - ../..:/workspaces:cached
+    environment:
+      - HOME=/root
+      - DEBUG=1
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+    working_dir: /workspace
 
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     network_mode: service:db

@@ -2,7 +2,6 @@ x-app-base: &app_base
     build:
       context: ../..
       dockerfile: contrib/container/Dockerfile
-      target: backend_dev
     volumes:
       - ../../src/backend/otaskmanagement:/src/backend/otaskmanagement:cached
     env_file:

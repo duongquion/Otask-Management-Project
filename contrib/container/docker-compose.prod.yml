@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  otask-server:
+    image: otask-backend:latest
+    container_name: otask-server
+    env_file:
+      - ./docker.prod.env
+    command: gunicorn otaskmanagement.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60
+    expose:
+      - 8000
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/mediafiles
+    depends_on:
+      - otask-redis
+    restart: unless-stopped
+
+  otask-celery:
+    image: otask-backend:latest
+    container_name: otask-celery
+    env_file:
+      - ./docker.prod.env
+    command: celery -A otaskmanagement worker -l info --concurrency=4
+    volumes:
+      - media_data:/app/mediafiles
+    depends_on:
+      - otask-redis
+    restart: unless-stopped
+
+  otask-celery-beat:
+    image: otask-backend:latest
+    container_name: otask-celery-beat
+    env_file:
+      - ./docker.prod.env
+    command: celery -A otaskmanagement beat -l info
+    depends_on:
+      - otask-redis
+    restart: unless-stopped
+
+  otask-redis:
+    image: redis:alpine
+    container_name: otask-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: otask-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_data:/app/staticfiles
+      - media_data:/app/mediafiles
+    depends_on:
+      - otask-server
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  static_data:
+  media_data:

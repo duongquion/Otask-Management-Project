@@ -54,7 +54,7 @@ def send_project_invitation(project_id, email, role, user):
         expired_at=timezone.now() + timedelta(days=7),
     )
 
-    verify_url = f"{settings.LOCAL_DOMAIN}email/invite/verify?token={token}"
+    verify_url = f"{settings.BACKEND_BASE_URL}email/invite/verify?token={token}"
 
     send_project_invite_email.delay(
         to_email=email, verify_url=verify_url, project_name=project.name
