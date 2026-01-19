@@ -3,6 +3,7 @@
 	"dockerComposeFile": "../contrib/container/docker-compose.dev.yml",
 	"service": "otask-server",
 	"workspaceFolder": "/src/backend/otaskmanagement",
+	"remoteUser": "root",
 	"overrideCommand": false,
 	"forwardPorts": [
 		8000,
@@ -20,7 +21,10 @@
 				"terminal.integrated.defaultProfile.linux": "bash",
 				"remote.otherPortsAttributes": {
 					"onAutoForward": "ignore"
-				}
+				},
+				"python.analysis.extraPaths": [
+					"/workspace/src/backend/otaskmanagement"
+				]
 			}
 		}
 	}

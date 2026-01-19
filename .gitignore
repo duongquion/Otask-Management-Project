@@ -6,3 +6,5 @@
 /_data/postgres/
 contrib/container/_data/
 contrib/container/_data/**
+staticfiles/
+/staticfiles/

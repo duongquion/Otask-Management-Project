@@ -4,7 +4,8 @@ from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # ------------------------------------------------------------------ #
 # Core / Security
 # ------------------------------------------------------------------ #
@@ -25,6 +26,12 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
+# ------------------------------------------------------------------ #
+# Domain
+# ------------------------------------------------------------------ #
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
+FRONTEND_URLS = os.getenv("FRONTEND_BASE_URL", "")
 
 # ------------------------------------------------------------------ #
 # Applications
@@ -87,12 +94,27 @@ MIDDLEWARE = [
 # ------------------------------------------------------------------ #
 # CORS setting
 # ------------------------------------------------------------------ #
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOWED_ORIGINS = [url.strip() for url in FRONTEND_URLS.split(",") if url]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
 ]
 
-CORS_ALLOWED_ALL_ORIGINS = True
+from corsheaders.defaults import default_headers
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+ALLOWED_HOSTS = [BACKEND_BASE_URL]
 
 # ------------------------------------------------------------------ #
 # Auth / Allauth
@@ -265,8 +287,3 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# ------------------------------------------------------------------ #
-# Domain
-# ------------------------------------------------------------------ #
-LOCAL_DOMAIN = os.getenv("LOCAL_DOMAIN")

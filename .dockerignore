@@ -4,3 +4,6 @@
 **/.venv/
 node_modules/
 .git
+*.pyc
+.env
+.env.*
