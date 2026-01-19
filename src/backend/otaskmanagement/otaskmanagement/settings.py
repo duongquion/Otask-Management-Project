@@ -31,7 +31,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Domain
 # ------------------------------------------------------------------ #
 BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
-FRONTEND_BASE_URL= os.getenv("FRONTEND_BASE_URL")
+FRONTEND_URLS = os.getenv("FRONTEND_BASE_URL", "")
 
 # ------------------------------------------------------------------ #
 # Applications
@@ -96,7 +96,7 @@ MIDDLEWARE = [
 # ------------------------------------------------------------------ #
 CORS_ALLOW_ALL_ORIGINS = False
 
-CORS_ALLOWED_ORIGINS = [FRONTEND_BASE_URL]
+CORS_ALLOWED_ORIGINS = [url.strip() for url in FRONTEND_URLS.split(",") if url]
 
 CORS_ALLOW_METHODS = [
     "GET",
