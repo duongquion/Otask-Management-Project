@@ -112,9 +112,8 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
 
-ALLOWED_HOSTS = [BACKEND_BASE_URL]
+CORS_ALLOW_CREDENTIALS = True
 
 # ------------------------------------------------------------------ #
 # Auth / Allauth
