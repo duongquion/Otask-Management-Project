@@ -16,4 +16,3 @@ class ProjectAPIViewTests(APITestCase):
     def test_get_project_list_without_auth(self):
         response = self.client.get(self.url)
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
-        print(response.data)
