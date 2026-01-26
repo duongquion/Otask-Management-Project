@@ -1,18 +1,21 @@
 name: Backend CI/CD
 
 on:
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions UI
   push:
     branches: [ "main", "dev" ]
     paths:
       - './src/backend/**' 
       - './contrib/container/docker-compose.dev.yml'
       - './contrib/container/Dockerfile'
+      - './.github/workflows/backend-cicd.yml'
   pull_request:
     branches: [ "main", "dev" ]
     paths:
       - './src/backend/**'
       - './contrib/container/docker-compose.dev.yml'
       - './contrib/container/Dockerfile'
+      - './.github/workflows/backend-cicd.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
