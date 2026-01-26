@@ -8,3 +8,6 @@ contrib/container/_data/
 contrib/container/_data/**
 staticfiles/
 /staticfiles/
+.coverage
+coverage.xml
+htmlcov/
