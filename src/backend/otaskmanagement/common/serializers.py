@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from common.models import ProjectInvitation
+from rest_framework import serializers
 from users.ruleset import RoleEnum
 
 

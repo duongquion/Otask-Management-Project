@@ -2,16 +2,16 @@
 
 from rest_framework import permissions
 
-from otaskmanagement.mixins import OtaskMixinDetailView, ListAPI
+from otaskmanagement.mixins import ListAPI, OtaskMixinDetailView
 from otaskmanagement.permissions import CheckAPIPermission
+from otaskmanagement.utils import METHOD
 
+from .models import Project, ProjectMembership
 from .serializers import (
-    WriteProjectMembershipSerializer,
     ProjectMembershipSerializer,
     ProjectSerializer,
+    WriteProjectMembershipSerializer,
 )
-from .models import Project, ProjectMembership
-from otaskmanagement.utils import METHOD
 
 
 class ProjectAPIView(ListAPI):

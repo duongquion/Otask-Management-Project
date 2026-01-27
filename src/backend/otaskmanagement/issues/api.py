@@ -1,18 +1,16 @@
 from django.shortcuts import get_object_or_404
-
-from rest_framework import permissions
-from rest_framework.exceptions import ValidationError
-
 from issues.models import Sprint
 from issues.serializers import (
     SprintSerializer,
 )
+from project.models import Project
+from rest_framework import permissions
+from rest_framework.exceptions import ValidationError
+
 from otaskmanagement.mixins import (
     ListCreateAPI,
     RetrieveUpdateDestroyAPI,
 )
-from otaskmanagement.utils import METHOD
-from project.models import Project
 
 
 class SprintMixin:

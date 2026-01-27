@@ -1,7 +1,4 @@
 from multiprocessing import context
-from rest_framework.exceptions import ValidationError
-from rest_framework import permissions
-from rest_framework.views import APIView, Response
 
 from common.serializers import EmailSerializer
 from common.services import (
@@ -10,6 +7,9 @@ from common.services import (
     verify_invite_token,
 )
 from project.models import ProjectMembership
+from rest_framework import permissions
+from rest_framework.exceptions import ValidationError
+from rest_framework.views import APIView, Response
 
 
 class SendEmailMember(APIView):

@@ -1,11 +1,11 @@
 """Issue database model definitions."""
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+from project.models import Project
 
 from otaskmanagement.models import BaseModel
-from project.models import Project
 
 
 class IssueTypeEnum(models.TextChoices):

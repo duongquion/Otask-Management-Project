@@ -1,11 +1,10 @@
+from django.conf import settings
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.urls import path
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import serializers
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission
-from django.urls import path
-from django.conf import settings
-
 from users.models import CustomUser
 
 # class TestPermissionSerializer(serializers.ModelSerializer):

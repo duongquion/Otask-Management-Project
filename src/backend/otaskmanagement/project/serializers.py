@@ -2,8 +2,9 @@
 
 from rest_framework import serializers
 
-from .models import Project, ProjectMembership, RoleEnum, AccessType
 from otaskmanagement.utils import FormatProjectKey
+
+from .models import AccessType, Project, ProjectMembership, RoleEnum
 
 
 class ProjectSerializer(serializers.ModelSerializer):

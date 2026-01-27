@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
-from users.models import RolePermission, RoleEnum
+from django.contrib.contenttypes.models import ContentType
+from users.models import RoleEnum, RolePermission
 
 
 def seed_role_permissions(sender, **kwargs):

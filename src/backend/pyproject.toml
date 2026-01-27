@@ -11,3 +11,16 @@ skip = ["migrations", "venv", "env", ".venv", "__pycache__", "node_modules"]
 [tool.flake8]
 max-line-length = 88
 exclude = "migrations,venv,env,.venv,__pycache__,node_modules"
+
+per-file-ignores = [
+  "__init__.py:F401",
+  "admin.py:F401",
+  "apps.py:F401",
+  "wsgi.py:F401",
+  "asgi.py:F401",
+]
+
+extend-ignore = [
+  "E203",  # whitespace before ':'
+  "W503",  # line break before binary operator
+]

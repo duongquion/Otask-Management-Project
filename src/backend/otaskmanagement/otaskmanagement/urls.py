@@ -8,15 +8,13 @@ This file organizes routes into groups:
 - Application modules (User, Project)
 """
 
-from django.contrib import admin
-from django.urls import path, include
-from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView
-from rest_framework_simplejwt.views import TokenRefreshView
-
-from users.allauth import GoogleLogin, me_google
-
 import issues.urls
 import users.tests
+from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
+from django.contrib import admin
+from django.urls import include, path
+from rest_framework_simplejwt.views import TokenRefreshView
+from users.allauth import GoogleLogin, me_google
 
 urlpatterns = [
     # -------------------------

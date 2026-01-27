@@ -1,16 +1,14 @@
-from uuid import UUID
 from datetime import timedelta
-
-from django.core import signing
-from django.utils import timezone
-from django.conf import settings
-from django.db import transaction
-
-from rest_framework.exceptions import ValidationError
+from uuid import UUID
 
 from common.models import ProjectInvitation
 from common.tasks import send_project_invite_email
+from django.conf import settings
+from django.core import signing
+from django.db import transaction
+from django.utils import timezone
 from project.models import Project, ProjectMembership
+from rest_framework.exceptions import ValidationError
 from users.models import CustomUser
 
 INVITE_TOKEN_SALT = "project-invite"

@@ -1,11 +1,11 @@
 """Project database model definitions."""
 
 from django.conf import settings
-
 from django.db import models
-from otaskmanagement.models import BaseModel
 from django.utils.translation import gettext_lazy as _
 from users.ruleset import RoleEnum
+
+from otaskmanagement.models import BaseModel
 
 
 class AccessType(models.TextChoices):
