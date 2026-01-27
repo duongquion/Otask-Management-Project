@@ -1,4 +1,5 @@
 """Shared abstract base model used across the project"""
+
 import uuid
 from django.conf import settings
 from django.db import models
@@ -10,6 +11,7 @@ class BaseModel(models.Model):
     Provides UUID primary key, created/updated timestamps,
     and tracking fields for the user who created or last modified the record
     """
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     created_at = models.DateTimeField(

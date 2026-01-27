@@ -1,5 +1,6 @@
 from celery import shared_task
 from datetime import datetime
+
 # from users.models import CustomUser
 
 # @shared_task
@@ -12,8 +13,8 @@ from datetime import datetime
 def test_print_task():
     now = datetime.now().strftime("%H:%M:%S")
     message = f"✅ [TEST] Celery đang chạy tốt! Giờ hiện tại: {now}"
-    
+
     # Lệnh print này sẽ hiện ra trong log của container
-    print(message) 
-    
+    print(message)
+
     return "Done"

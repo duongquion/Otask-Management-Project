@@ -45,7 +45,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
 
 
 class RolePermission(models.Model):
-    role = models.CharField(max_length=32, choices=RoleEnum.choices, default=RoleEnum.ADMINISTRATOR,)
+    role = models.CharField(
+        max_length=32,
+        choices=RoleEnum.choices,
+        default=RoleEnum.ADMINISTRATOR,
+    )
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
 
     class Meta:

@@ -5,8 +5,8 @@ from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # ------------------------------------------------------------------ #
 # Core / Security
 # ------------------------------------------------------------------ #
@@ -109,6 +109,7 @@ CORS_ALLOW_METHODS = [
 ]
 
 from corsheaders.defaults import default_headers
+
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
 ]

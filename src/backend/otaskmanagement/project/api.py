@@ -25,11 +25,11 @@ class ProjectAPIView(ListAPI):
 
 class ProjectMembershipAPIView(OtaskMixinDetailView):
     """Handles CRUD operations for ProjectMembership."""
-    
+
     permission_classes = [permissions.IsAuthenticated, CheckAPIPermission]
     queryset = ProjectMembership.objects.select_related("member", "project")
     required_permission = "view_project"
-    
+
     def get_project(self):
         return self.kwargs.get("pk")
 

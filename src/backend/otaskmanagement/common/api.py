@@ -19,7 +19,9 @@ class SendEmailMember(APIView):
         try:
             project_id = self.kwargs["pk"]
 
-            serializer = EmailSerializer(data=request.data, context = {"project_id": project_id})
+            serializer = EmailSerializer(
+                data=request.data, context={"project_id": project_id}
+            )
             serializer.is_valid(raise_exception=True)
 
             send_project_invitation(

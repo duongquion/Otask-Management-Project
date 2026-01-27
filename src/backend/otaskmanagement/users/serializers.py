@@ -22,7 +22,7 @@ class UserRegisterSerializer(RegisterSerializer):
     """
 
     username = None
-    
+
     def validate(self, data):
         email = data["email"]
         if User.objects.filter(email=email).exists():

@@ -18,7 +18,6 @@ from users.allauth import GoogleLogin, me_google
 import issues.urls
 import users.tests
 
-
 urlpatterns = [
     # -------------------------
     # Django Admin
@@ -47,10 +46,15 @@ urlpatterns = [
     # -------------------------
     # Application Modules
     # -------------------------
-    path("<uuid:project_id>/", include([
-        path("user/", include("users.urls")),
-        path("sprint/", include(issues.urls.sprint_api_urls)),
-    ])),
+    path(
+        "<uuid:project_id>/",
+        include(
+            [
+                path("user/", include("users.urls")),
+                path("sprint/", include(issues.urls.sprint_api_urls)),
+            ]
+        ),
+    ),
     path("email-invite/", include("common.urls")),
     path("project/", include("project.urls")),
     # -------------------------
