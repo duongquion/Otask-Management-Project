@@ -1,10 +1,7 @@
 [tool.ruff]
-# Giới hạn độ dài dòng (chuẩn Black là 88)
 line-length = 88
-# Khớp với môi trường CI/CD của bạn
 target-version = "py312"
 
-# Bỏ qua các thư mục không cần format
 exclude = [
     "migrations",
     "venv",
@@ -15,18 +12,21 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# E: Lỗi cú pháp (Flake8)
-# F: Lỗi logic/Import (Flake8)
-# I: Sắp xếp import (Isort)
 select = ["E", "F", "I"]
 
 [tool.ruff.lint.per-file-ignores]
-# Không báo lỗi import thừa trong file __init__.py
 "__init__.py" = ["F401"]
 "admin.py" = ["F401"]
 
 [tool.ruff.format]
-# Cấu hình format y hệt Black để không làm xáo trộn code cũ
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+[tool.mypy]
+exclude = [
+    'migrations/.*',
+    "venv",
+    "env",
+    ".venv",
+]
