@@ -216,7 +216,7 @@ jobs:
   build-and-push:
     name: 🐳 Build & Push
     needs: [quality-check, security-scan]
-    if: github.event_name == 'push'
+    if: always() && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
