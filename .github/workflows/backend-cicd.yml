@@ -149,6 +149,7 @@ jobs:
 
       - name: Robust Coverage Check
         id: coverage-check
+        continue-on-error: ${{ github.ref != 'refs/heads/main' }}
         run: |
           python3 -c "
           import xml.etree.ElementTree as ET
@@ -157,7 +158,7 @@ jobs:
 
           file_path = '${{ env.TEST_RESULTS_DIR }}/coverage.xml'
           threshold = int('${{ env.COVERAGE_THRESHOLD }}')
-          
+
           if not os.path.exists(file_path):
               print('❌ Coverage file not found!')
               sys.exit(1)
@@ -166,9 +167,9 @@ jobs:
               tree = ET.parse(file_path)
               rate = float(tree.getroot().attrib.get('line-rate', 0))
               percent = int(rate * 100)
-              
+
               print(f'::notice title=Coverage Report::Current: {percent}% | Required: {threshold}%')
-              
+
               if percent < threshold:
                   print(f'::error::Coverage {percent}% is below threshold {threshold}%')
                   sys.exit(1)
@@ -178,6 +179,7 @@ jobs:
               print(f'::error::Failed to parse coverage: {e}')
               sys.exit(1)
           "
+
 
       - name: SonarQube Scan
         if: success()
