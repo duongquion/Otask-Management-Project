@@ -15,9 +15,9 @@ class ProjectAPIViewTests(APITestCase):
 
         self.project = Project.objects.create(name="Sample Project 1", key="SP1")
 
-    def test_get_project_list_without_auth(self):
+    def test_get_project_list_authenticated(self):
+        self.client.force_authenticate(user=self.user)
+
         response = self.client.get(self.url)
-        self.assertIn(
-            response.status_code,
-            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
-        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
