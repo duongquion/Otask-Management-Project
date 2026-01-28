@@ -158,7 +158,7 @@ jobs:
         id: tests
         run: |
           mkdir -p test-results
-          chmod 777 test-results # Fix permission issue for docker volume mapping
+          chmod 777 test-results
           
           docker run --rm \
             --network ${{ env.DOCKER_NETWORK }} \
@@ -168,6 +168,7 @@ jobs:
             -e POSTGRES_USER=${{ secrets.DB_USER || 'test_user' }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD || 'test_password' }} \
             -e REDIS_URL=redis://${{ env.REDIS_HOST }}:6379/0 \
+            -e CI=true \
             --env-file ./contrib/container/docker.dev.env \
             -v ${{ github.workspace }}/test-results:/app/test-results \
             ${{ env.IMAGE_NAME }}:test \
@@ -177,9 +178,7 @@ jobs:
                 --omit='*/migrations/*,*/venv/*,*/env/*,*/__pycache__/*,*/tests.py,*/test_*.py,manage.py' \
                 manage.py test \
                   --verbosity=2 \
-                  --no-input \
-                  --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner \
-                  --output-file=/app/test-results/test-results.xml && \
+                  --no-input && \
               coverage xml -o /app/test-results/coverage.xml && \
               coverage report --show-missing
             "

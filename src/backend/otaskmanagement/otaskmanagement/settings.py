@@ -314,3 +314,9 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+if os.environ.get("CI") == "true":
+    TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+    TEST_OUTPUT_DIR = os.path.join(BASE_DIR, "test-results")
+else:
+    TEST_RUNNER = "django.test.runner.DiscoverRunner"
