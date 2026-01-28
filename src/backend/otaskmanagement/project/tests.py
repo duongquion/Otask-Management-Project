@@ -9,11 +9,9 @@ class ProjectAPIViewTests(APITestCase):
     def setUp(self):
         self.url = "/api/projects/"
 
-        self.username = "testuser"
+        self.email = "testuser"
         self.password = "password123"
-        self.user = User.objects.create_user(
-            username=self.username, password=self.password
-        )
+        self.user = User.objects.create_user(email=self.email, password=self.password)
 
         self.project = Project.objects.create(name="Sample Project 1", key="SP1")
 
