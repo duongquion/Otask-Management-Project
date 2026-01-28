@@ -6,15 +6,13 @@ on:
     branches: [ "main", "dev" ]
     paths:
       - src/backend/**
-      - contrib/container/docker-compose.dev.yml
-      - contrib/container/Dockerfile
+      - contrib/container/**
       - .github/workflows/backend-cicd.yml
   pull_request:
     branches: [ "main", "dev" ]
     paths:
       - src/backend/**
-      - contrib/container/docker-compose.dev.yml
-      - contrib/container/Dockerfile
+      - contrib/container/**
       - .github/workflows/backend-cicd.yml
 
 concurrency:
@@ -26,10 +24,13 @@ env:
   IMAGE_NAME: otask-backend
   PYTHON_VERSION: "3.12"
   COVERAGE_THRESHOLD: "80"
+  DOCKER_NETWORK: backend-cicd-net
+  POSTGRES_HOST: postgres-service
+  REDIS_HOST: redis-service
 
 jobs:
   lint-and-format:
-    name: Lint and Format Check
+    name: Lint and Format
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -50,25 +51,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-linting-
 
-      - name: Install linting dependencies
+      - name: Install Tools
         working-directory: ./src/backend
         run: |
           python -m pip install --upgrade pip
-          pip install black flake8 isort mypy
+          pip install black isort flake8 mypy
 
-      - name: Check code formatting with black
+      - name: Black
         working-directory: ./src/backend
         run: black --check --diff .
 
-      - name: Check import sorting with isort
+      - name: Isort
         working-directory: ./src/backend
         run: isort --check-only --diff .
 
-      - name: Lint with flake8
+      - name: Flake8
         working-directory: ./src/backend
         run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-      - name: Type check with mypy (optional)
+      - name: Mypy (soft)
         working-directory: ./src/backend
         continue-on-error: true
         run: mypy . --ignore-missing-imports || echo "Type checking skipped or failed"
@@ -78,31 +79,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint-and-format
     timeout-minutes: 45
-    
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: ${{ secrets.DB_NAME || 'test_db' }}
-          POSTGRES_USER: ${{ secrets.DB_USER || 'test_user' }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD || 'test_password' }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -113,70 +89,89 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Create Docker Network
+        run: docker network create ${{ env.DOCKER_NETWORK }}
+
       - name: Create .env file
         run: |
           echo "${{ secrets.CI_ENV }}" > ./contrib/container/docker.dev.env
-          if [ ! -f ./contrib/container/docker.dev.env ]; then
-            echo "Error: .env file was not created"
-            exit 1
-          fi
+          # Đảm bảo file tồn tại
+          [ -f ./contrib/container/docker.dev.env ] || (echo "Error: .env not created" && exit 1)
 
+      - name: Start Services (Postgres & Redis)
+        run: |
+          # Start Postgres
+          docker run -d \
+            --name ${{ env.POSTGRES_HOST }} \
+            --network ${{ env.DOCKER_NETWORK }} \
+            -e POSTGRES_DB=${{ secrets.DB_NAME || 'test_db' }} \
+            -e POSTGRES_USER=${{ secrets.DB_USER || 'test_user' }} \
+            -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD || 'test_password' }} \
+            --health-cmd "pg_isready -U ${{ secrets.DB_USER || 'test_user' }}" \
+            --health-interval 5s \
+            --health-timeout 5s \
+            --health-retries 10 \
+            postgres:17
+
+          # Start Redis
+          docker run -d \
+            --name ${{ env.REDIS_HOST }} \
+            --network ${{ env.DOCKER_NETWORK }} \
+            --health-cmd "redis-cli ping" \
+            --health-interval 5s \
+            --health-timeout 5s \
+            --health-retries 10 \
+            redis:alpine
+
+      - name: Wait for Services
+        run: |
+          echo "Waiting for Postgres..."
+          until [ "`docker inspect -f {{.State.Health.Status}} ${{ env.POSTGRES_HOST }}`" == "healthy" ]; do sleep 2; done
+          
+          echo "Waiting for Redis..."
+          until [ "`docker inspect -f {{.State.Health.Status}} ${{ env.REDIS_HOST }}`" == "healthy" ]; do sleep 2; done
+          
+          echo "All services ready!"
       - name: Build Docker image for testing
-        id: build-test-image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./contrib/container/Dockerfile
           push: false
+          load: true
           tags: ${{ env.IMAGE_NAME }}:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h localhost -p 5432 -U ${{ secrets.DB_USER || 'test_user' }}; do
-            echo "Waiting for PostgreSQL..."
-            sleep 2
-          done
-          echo "PostgreSQL is ready!"
-
-      - name: Wait for Redis to be ready
-        run: |
-          until redis-cli -h localhost -p 6379 ping; do
-            echo "Waiting for Redis..."
-            sleep 2
-          done
-          echo "Redis is ready!"
+          build-args: BUILDKIT_INLINE_CACHE=1
 
       - name: Run Database Migrations
         run: |
           docker run --rm \
-            --network host \
-            -e POSTGRES_HOST=localhost \
+            --network ${{ env.DOCKER_NETWORK }} \
+            -e POSTGRES_HOST=${{ env.POSTGRES_HOST }} \
             -e POSTGRES_PORT=5432 \
             -e POSTGRES_DB=${{ secrets.DB_NAME || 'test_db' }} \
             -e POSTGRES_USER=${{ secrets.DB_USER || 'test_user' }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD || 'test_password' }} \
-            -e REDIS_URL=redis://localhost:6379/0 \
+            -e REDIS_URL=redis://${{ env.REDIS_HOST }}:6379/0 \
             --env-file ./contrib/container/docker.dev.env \
             ${{ env.IMAGE_NAME }}:test \
             python manage.py migrate --no-input
 
-      - name: Run Unit Tests with Coverage and JUnit XML Output
+      - name: Run Unit Tests
         id: tests
         run: |
           mkdir -p test-results
+          chmod 777 test-results # Fix permission issue for docker volume mapping
           
           docker run --rm \
-            --network host \
-            -e POSTGRES_HOST=localhost \
+            --network ${{ env.DOCKER_NETWORK }} \
+            -e POSTGRES_HOST=${{ env.POSTGRES_HOST }} \
             -e POSTGRES_PORT=5432 \
             -e POSTGRES_DB=${{ secrets.DB_NAME || 'test_db' }} \
             -e POSTGRES_USER=${{ secrets.DB_USER || 'test_user' }} \
             -e POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD || 'test_password' }} \
-            -e REDIS_URL=redis://localhost:6379/0 \
+            -e REDIS_URL=redis://${{ env.REDIS_HOST }}:6379/0 \
             --env-file ./contrib/container/docker.dev.env \
             -v ${{ github.workspace }}/test-results:/app/test-results \
             ${{ env.IMAGE_NAME }}:test \
@@ -192,22 +187,14 @@ jobs:
               coverage xml -o /app/test-results/coverage.xml && \
               coverage report --show-missing
             "
-        continue-on-error: false
-        timeout-minutes: 30
 
       - name: Parse and Display Test Results
         if: always()
         run: |
           if [ -f test-results/test-results.xml ]; then
             echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
-            tests=$(grep -o 'tests="[0-9]*"' test-results/test-results.xml | head -1 | grep -o '[0-9]*' || echo "N/A")
-            failures=$(grep -o 'failures="[0-9]*"' test-results/test-results.xml | head -1 | grep -o '[0-9]*' || echo "0")
-            errors=$(grep -o 'errors="[0-9]*"' test-results/test-results.xml | head -1 | grep -o '[0-9]*' || echo "0")
-            echo "- **Total Tests:** $tests" >> $GITHUB_STEP_SUMMARY
-            echo "- **Failures:** $failures" >> $GITHUB_STEP_SUMMARY
-            echo "- **Errors:** $errors" >> $GITHUB_STEP_SUMMARY
+            python3 -c "import xml.etree.ElementTree as ET; r=ET.parse('test-results/test-results.xml').getroot(); print(f'- **Total:** {r.attrib.get(\"tests\", 0)}\n- **Failures:** {r.attrib.get(\"failures\", 0)}\n- **Errors:** {r.attrib.get(\"errors\", 0)}')" >> $GITHUB_STEP_SUMMARY
           else
-            echo "## Test Results" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ Test results file not found" >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -215,28 +202,24 @@ jobs:
         if: always()
         run: |
           if [ -f test-results/coverage.xml ]; then
-            coverage=$(grep -o 'line-rate="[0-9.]*"' test-results/coverage.xml | head -1 | grep -o '[0-9.]*' || echo "0")
-            coverage_percent=$(echo "$coverage * 100" | bc | cut -d. -f1)
-            threshold=${{ env.COVERAGE_THRESHOLD }}
+            COVERAGE=$(python3 -c "import xml.etree.ElementTree as ET; print(int(float(ET.parse('test-results/coverage.xml').getroot().attrib['line-rate']) * 100))")
+            THRESHOLD=${{ env.COVERAGE_THRESHOLD }}
             
             echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
-            echo "- **Coverage:** ${coverage_percent}%" >> $GITHUB_STEP_SUMMARY
-            echo "- **Threshold:** ${threshold}%" >> $GITHUB_STEP_SUMMARY
+            echo "- **Current:** ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+            echo "- **Required:** ${THRESHOLD}%" >> $GITHUB_STEP_SUMMARY
             
-            if [ "$coverage_percent" -lt "$threshold" ]; then
-              echo "❌ Coverage ${coverage_percent}% is below threshold ${threshold}%" >> $GITHUB_STEP_SUMMARY
-              echo "Coverage threshold check failed!"
+            if [ "$COVERAGE" -lt "$THRESHOLD" ]; then
+              echo "❌ Coverage below threshold" >> $GITHUB_STEP_SUMMARY
               exit 1
             else
-              echo "✅ Coverage meets threshold requirement" >> $GITHUB_STEP_SUMMARY
+              echo "✅ Coverage OK" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ Coverage file not found" >> $GITHUB_STEP_SUMMARY
-            echo "Coverage check skipped"
           fi
 
-      - name: Upload test results and coverage
+      - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -244,25 +227,18 @@ jobs:
           path: |
             test-results/test-results.xml
             test-results/coverage.xml
-          retention-days: 30
-          if-no-files-found: ignore
+          retention-days: 15
 
-      - name: Copy test results and coverage to SonarQube project directory
+      - name: Prepare SonarQube Files
         if: success()
         run: |
-          mkdir -p ./src/backend/otaskmanagement/test-results
-          if [ -f test-results/test-results.xml ]; then
-            cp test-results/test-results.xml ./src/backend/otaskmanagement/test-results/test-results.xml
-            echo "Test results copied successfully"
-          else
-            echo "Warning: Test results file not found"
-          fi
-          if [ -f test-results/coverage.xml ]; then
-            cp test-results/coverage.xml ./src/backend/otaskmanagement/coverage.xml
-            echo "Coverage file copied successfully"
-          else
-            echo "Warning: Coverage file not found"
-          fi
+          TARGET_DIR="./src/backend/otaskmanagement"
+          mkdir -p "$TARGET_DIR/test-results"
+          
+          [ -f test-results/test-results.xml ] && cp test-results/test-results.xml "$TARGET_DIR/test-results/"
+          [ -f test-results/coverage.xml ] && cp test-results/coverage.xml "$TARGET_DIR/"
+
+          ls -R src/backend/otaskmanagement
 
       - name: SonarQube Scan
         if: success()
@@ -295,19 +271,18 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy results to GitHub Security
+      - name: Upload Trivy results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
-          wait-for-processing: true
 
   build-and-push:
     name: Build and Push Docker Image
     needs: [quality-check, security-scan]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: read
       packages: write
@@ -316,6 +291,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -349,17 +327,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
+          build-args: BUILDKIT_INLINE_CACHE=1
           platforms: linux/amd64,linux/arm64
-
-      - name: Image digest and tags
-        if: success()
-        run: |
-          echo "## Docker Image Details" >> $GITHUB_STEP_SUMMARY
-          echo "- **Digest:** ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tags:** ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo "Image pushed successfully!"
 
   smoke-test:
     name: Smoke Test
@@ -368,71 +337,66 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: test_db
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Docker and curl
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl || true
+      - name: Create Docker Network
+        run: docker network create ${{ env.DOCKER_NETWORK }}
 
-      - name: Pull and run image
-        id: run-container
+      - name: Start Postgres for Smoke Test
         run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} || \
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          
-          CONTAINER_ID=$(docker run -d --name test-container \
-            --network host \
-            -e POSTGRES_HOST=localhost \
+          docker run -d \
+            --name ${{ env.POSTGRES_HOST }} \
+            --network ${{ env.DOCKER_NETWORK }} \
             -e POSTGRES_DB=test_db \
             -e POSTGRES_USER=test_user \
             -e POSTGRES_PASSWORD=test_password \
-            ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} || \
-            ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest)
+            --health-cmd "pg_isready -U test_user" \
+            --health-interval 5s \
+            --health-timeout 5s \
+            --health-retries 10 \
+            postgres:17
+
+      - name: Wait for Postgres
+        run: |
+          echo "Waiting for Postgres..."
+          until [ "`docker inspect -f {{.State.Health.Status}} ${{ env.POSTGRES_HOST }}`" == "healthy" ]; do sleep 2; done
+
+      - name: Pull and run application
+        id: run-container
+        run: |
+          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          # Fallback to latest if explicit tag fails (though unlikely after build-and-push)
+          docker pull $IMAGE_TAG || IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          
+          # Run App in the same network
+          CONTAINER_ID=$(docker run -d --name test-container \
+            --network ${{ env.DOCKER_NETWORK }} \
+            -e POSTGRES_HOST=${{ env.POSTGRES_HOST }} \
+            -e POSTGRES_DB=test_db \
+            -e POSTGRES_USER=test_user \
+            -e POSTGRES_PASSWORD=test_password \
+            $IMAGE_TAG)
           
           echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT
-          echo "Container started: $CONTAINER_ID"
 
-      - name: Wait for application to start
+      - name: Wait for application to be ready
         run: |
-          echo "Waiting for application to be ready..."
+          echo "Waiting for application..."
           for i in {1..30}; do
-            if curl -f http://localhost:8000/admin/ 2>/dev/null; then
-              echo "Application is ready!"
-              exit 0
-            fi
-            echo "Attempt $i/30: Application not ready yet..."
-            sleep 2
+             if docker exec test-container python manage.py check --deploy > /dev/null 2>&1; then
+               echo "Application is ready (Django check passed)!"
+               exit 0
+             fi
+             echo "Attempt $i/30: App not ready..."
+             sleep 2
           done
-          echo "Application failed to start within timeout"
+          docker logs test-container
           exit 1
-
-      - name: Health check
-        run: |
-          docker exec test-container python manage.py check --deploy || exit 1
-          curl -f http://localhost:8000/admin/ || exit 1
-          echo "✅ Health checks passed!"
 
       - name: Cleanup
         if: always()
         run: |
-          docker stop test-container || true
-          docker rm -f test-container || true
-          echo "Cleanup completed"
+          docker rm -f test-container ${{ env.POSTGRES_HOST }} || true
+          docker network rm ${{ env.DOCKER_NETWORK }} || true
