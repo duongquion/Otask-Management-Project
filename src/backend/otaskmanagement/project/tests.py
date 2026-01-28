@@ -1,6 +1,6 @@
-from users.models import CustomUser as User
 from rest_framework import status
 from rest_framework.test import APITestCase
+from users.models import CustomUser as User
 
 from .models import Project
 
