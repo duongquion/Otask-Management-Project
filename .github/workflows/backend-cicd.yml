@@ -182,18 +182,18 @@ jobs:
           "
 
 
-      - name: SonarQube Scan
+      - name: SonarQube Scan (dev only)
         if: success()
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BE }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           projectBaseDir: ${{ env.SONAR_DIR }}
           args: >
             -Dsonar.python.coverage.reportPaths=../../${{ env.TEST_RESULTS_DIR }}/coverage.xml
             -Dsonar.projectVersion=${{ github.sha }}
             -Dsonar.scm.provider=git
+
 
   security-scan:
     name: 🔒 Security Scan
