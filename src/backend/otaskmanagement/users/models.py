@@ -30,7 +30,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
     )
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["email"]
+    REQUIRED_FIELDS: list[str] = []
 
     objects = CustomUserManager()
 
