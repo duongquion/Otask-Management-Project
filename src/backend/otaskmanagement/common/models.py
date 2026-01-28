@@ -1,9 +1,9 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
+from django.db.models import Q
 from otaskmanagement.models import BaseModel
 from project.models import Project
 from users.ruleset import RoleEnum
-from django.db.models import Q
 
 
 class ProjectInvitation(BaseModel):

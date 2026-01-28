@@ -1,5 +1,9 @@
 from django.shortcuts import get_object_or_404
-
+from otaskmanagement.mixins import (
+    ListCreateAPI,
+    RetrieveUpdateDestroyAPI,
+)
+from project.models import Project
 from rest_framework import permissions
 from rest_framework.exceptions import ValidationError
 
@@ -7,12 +11,6 @@ from issues.models import Sprint
 from issues.serializers import (
     SprintSerializer,
 )
-from otaskmanagement.mixins import (
-    ListCreateAPI,
-    RetrieveUpdateDestroyAPI,
-)
-from otaskmanagement.utils import METHOD
-from project.models import Project
 
 
 class SprintMixin:
@@ -21,7 +19,6 @@ class SprintMixin:
 
 
 class SprintList(SprintMixin, ListCreateAPI):
-
     def get_queryset(self):
         project_id = self.kwargs.get("project_id")
         if not project_id:
@@ -34,7 +31,6 @@ class SprintList(SprintMixin, ListCreateAPI):
 
 
 class SprintDetail(SprintMixin, RetrieveUpdateDestroyAPI):
-
     def get_queryset(self):
         project_id = self.kwargs.get("project_id")
         if not project_id:

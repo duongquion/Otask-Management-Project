@@ -1,9 +1,9 @@
 """DRF data serializers for User app."""
 
-from rest_framework import serializers
+from allauth.account.utils import setup_user_email
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.core.exceptions import ValidationError as DjangoValidationError
-from allauth.account.utils import setup_user_email
+from rest_framework import serializers
 
 try:
     from allauth.account.adapter import get_adapter
@@ -22,7 +22,7 @@ class UserRegisterSerializer(RegisterSerializer):
     """
 
     username = None
-    
+
     def validate(self, data):
         email = data["email"]
         if User.objects.filter(email=email).exists():

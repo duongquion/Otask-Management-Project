@@ -1,6 +1,6 @@
 """Custom mixins for (API) view in the whole project"""
 
-from rest_framework import mixins, generics, status
+from rest_framework import generics, mixins, status
 from rest_framework.response import Response
 
 

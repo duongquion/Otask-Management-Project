@@ -1,4 +1,5 @@
-from django.urls import include, path
+from django.urls import path
+
 from issues.api import SprintDetail, SprintList
 
 sprint_api_urls = [

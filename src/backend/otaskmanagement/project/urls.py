@@ -1,7 +1,8 @@
 """Provides URLs for the Project app."""
 
 from django.urls import path
-from .api import ProjectMembershipAPIView, ProjectAPIView
+
+from .api import ProjectAPIView, ProjectMembershipAPIView
 
 urlpatterns = [
     path("", ProjectAPIView.as_view(), name="project-list"),

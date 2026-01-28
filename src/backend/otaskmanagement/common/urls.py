@@ -1,4 +1,5 @@
 from django.urls import path
+
 from common.api import AcceptInvitation, SendEmailMember, VerifyInvitation
 
 urlpatterns = [

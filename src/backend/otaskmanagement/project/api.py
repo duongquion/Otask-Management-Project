@@ -1,17 +1,16 @@
 """Provides JSON API endpoints for the Project app."""
 
+from otaskmanagement.mixins import ListAPI, OtaskMixinDetailView
+from otaskmanagement.permissions import CheckAPIPermission
+from otaskmanagement.utils import METHOD
 from rest_framework import permissions
 
-from otaskmanagement.mixins import OtaskMixinDetailView, ListAPI
-from otaskmanagement.permissions import CheckAPIPermission
-
+from .models import Project, ProjectMembership
 from .serializers import (
-    WriteProjectMembershipSerializer,
     ProjectMembershipSerializer,
     ProjectSerializer,
+    WriteProjectMembershipSerializer,
 )
-from .models import Project, ProjectMembership
-from otaskmanagement.utils import METHOD
 
 
 class ProjectAPIView(ListAPI):
@@ -25,11 +24,11 @@ class ProjectAPIView(ListAPI):
 
 class ProjectMembershipAPIView(OtaskMixinDetailView):
     """Handles CRUD operations for ProjectMembership."""
-    
+
     permission_classes = [permissions.IsAuthenticated, CheckAPIPermission]
     queryset = ProjectMembership.objects.select_related("member", "project")
     required_permission = "view_project"
-    
+
     def get_project(self):
         return self.kwargs.get("pk")
 

@@ -1,9 +1,9 @@
 """DRF data serializers for Project app."""
 
+from otaskmanagement.utils import FormatProjectKey
 from rest_framework import serializers
 
-from .models import Project, ProjectMembership, RoleEnum, AccessType
-from otaskmanagement.utils import FormatProjectKey
+from .models import AccessType, Project, ProjectMembership, RoleEnum
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -30,7 +30,6 @@ class WriteProjectMembershipSerializer(serializers.Serializer):
     member = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     def create(self, validated_data):
-
         project_name = validated_data.get("project")
         member_name = validated_data.get("member")
         role_choice = validated_data.get("role", None)
@@ -54,7 +53,6 @@ class WriteProjectMembershipSerializer(serializers.Serializer):
         return membership
 
     def update(self, instance, validated_data):
-
         project_name = validated_data.get("project", None)
         access_choice = validated_data.get("access", None)
 

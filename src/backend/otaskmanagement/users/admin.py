@@ -1,6 +1,7 @@
 """Admin class definitions for the 'user' app."""
 
 from django.contrib import admin
+
 from .models import CustomUser as User
 
 

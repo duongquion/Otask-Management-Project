@@ -1,23 +1,21 @@
-from uuid import UUID
 from datetime import timedelta
+from uuid import UUID
 
-from django.core import signing
-from django.utils import timezone
 from django.conf import settings
+from django.core import signing
 from django.db import transaction
-
+from django.utils import timezone
+from project.models import Project, ProjectMembership
 from rest_framework.exceptions import ValidationError
+from users.models import CustomUser
 
 from common.models import ProjectInvitation
 from common.tasks import send_project_invite_email
-from project.models import Project, ProjectMembership
-from users.models import CustomUser
 
 INVITE_TOKEN_SALT = "project-invite"
 
 
 def genarate_user_token(project_id, email: str):
-
     pay_load = {
         "email": email,
         "project": str(project_id),
@@ -31,7 +29,6 @@ def genarate_user_token(project_id, email: str):
 
 
 def send_project_invitation(project_id, email, role, user):
-
     project = Project.objects.get(id=project_id)
     invited_by = CustomUser.objects.get(id=user)
 

@@ -1,10 +1,9 @@
 """Project database model definitions."""
 
 from django.conf import settings
-
 from django.db import models
-from otaskmanagement.models import BaseModel
 from django.utils.translation import gettext_lazy as _
+from otaskmanagement.models import BaseModel
 from users.ruleset import RoleEnum
 
 
