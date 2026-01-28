@@ -9,7 +9,6 @@ This file organizes routes into groups:
 """
 
 import issues.urls
-import users.tests
 from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
 from django.contrib import admin
 from django.urls import include, path
@@ -55,8 +54,4 @@ urlpatterns = [
     ),
     path("email-invite/", include("common.urls")),
     path("project/", include("project.urls")),
-    # -------------------------
-    # API Testing
-    # -------------------------
-    path("test/", include(users.tests.api_test_urls)),
 ]
