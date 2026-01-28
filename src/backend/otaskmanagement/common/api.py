@@ -1,4 +1,7 @@
-from multiprocessing import context
+from project.models import ProjectMembership
+from rest_framework import permissions
+from rest_framework.exceptions import ValidationError
+from rest_framework.views import APIView, Response
 
 from common.serializers import EmailSerializer
 from common.services import (
@@ -6,10 +9,6 @@ from common.services import (
     send_project_invitation,
     verify_invite_token,
 )
-from project.models import ProjectMembership
-from rest_framework import permissions
-from rest_framework.exceptions import ValidationError
-from rest_framework.views import APIView, Response
 
 
 class SendEmailMember(APIView):
@@ -33,7 +32,9 @@ class SendEmailMember(APIView):
 
             return Response(
                 {
-                    "detail": "Request received. The email should arrive in a few minutes."
+                    "detail": (
+                        "Request received. The email should arrive in a few minutes."
+                    )
                 },
                 status=200,
             )

@@ -1,24 +1,9 @@
-from django.conf import settings
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.urls import path
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from users.models import CustomUser
-
-# class TestPermissionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Permission
-#         fields = "__all__"
-
-# class TestPermissionAPI(APIView):
-#     def get(self, request, *args, **kwargs):
-#         content_type = ContentType.objects.filter(app_label__in=settings.PROJECT_APP_LABELS)
-#         permission = Permission.objects.filter(content_type__in=content_type)
-
-#         serializer = TestPermissionSerializer(permission, many=True)
-#         return Response({"DATA": serializer.data},200)
 
 
 class UserSerializer(serializers.ModelSerializer):

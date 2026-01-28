@@ -1,6 +1,7 @@
-from common.models import ProjectInvitation
 from rest_framework import serializers
 from users.ruleset import RoleEnum
+
+from common.models import ProjectInvitation
 
 
 class EmailSerializer(serializers.Serializer):

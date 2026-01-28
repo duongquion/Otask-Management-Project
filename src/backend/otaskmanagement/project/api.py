@@ -1,10 +1,9 @@
 """Provides JSON API endpoints for the Project app."""
 
-from rest_framework import permissions
-
 from otaskmanagement.mixins import ListAPI, OtaskMixinDetailView
 from otaskmanagement.permissions import CheckAPIPermission
 from otaskmanagement.utils import METHOD
+from rest_framework import permissions
 
 from .models import Project, ProjectMembership
 from .serializers import (
