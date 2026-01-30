@@ -5,13 +5,10 @@ Handles Google OAuth2 authentication using Django Allauth and dj-rest-auth.
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-
 from dj_rest_auth.registration.views import SocialLoginView
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
