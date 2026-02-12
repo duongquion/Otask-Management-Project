@@ -1,11 +1,15 @@
+import os
+from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
+DEBUG = os.getenv("DEBUG", "False") == "True"
 # ------------------------------------------------------------------ #
 # Core / Security (Defaults safe for loading, strict in Prod)
 # ------------------------------------------------------------------ #
-
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY environment variable is required")
 ALLOWED_HOSTS: list = []
 CSRF_TRUSTED_ORIGINS: list = []
 
@@ -114,6 +118,11 @@ DJ_REST_AUTH = {"TOKEN_MODEL": None}
 REST_AUTH_TOKEN_MODEL = None
 
 SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1) if DEBUG else timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7) if DEBUG else timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "SIGNING_KEY": SECRET_KEY,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",

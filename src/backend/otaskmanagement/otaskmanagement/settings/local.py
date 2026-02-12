@@ -1,11 +1,6 @@
 import os
-from datetime import timedelta
-from typing import Any
 
 from .base import *
-
-DEBUG = True
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 
 # ------------------------------------------------------------------ #
 # Network / CORS
@@ -41,18 +36,6 @@ DATABASES = {
 # ------------------------------------------------------------------ #
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_TASK_TIME_LIMIT = 30 * 60
-
-# ------------------------------------------------------------------ #
-# Auth / JWT (Relaxed)
-# ------------------------------------------------------------------ #
-SIMPLE_JWT: dict[str, Any] = SIMPLE_JWT.copy()
-SIMPLE_JWT.update(
-    {
-        "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-        "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-        "SIGNING_KEY": SECRET_KEY,
-    }
-)
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_STORE_TOKENS = True

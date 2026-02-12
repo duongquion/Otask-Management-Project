@@ -1,19 +1,12 @@
 import os
-from datetime import timedelta
-from typing import Any
 
 import dj_database_url
 
 from .base import *
 
-DEBUG = False
-
 # ------------------------------------------------------------------ #
 # Security Checks (Fail fast if missing)
 # ------------------------------------------------------------------ #
-SECRET_KEY = os.getenv("SECRET_KEY")
-if not SECRET_KEY:
-    raise RuntimeError("SECRET_KEY environment variable is required")
 
 extra_allowed_host = os.getenv("DJANGO_ALLOWED_HOSTS")
 if not extra_allowed_host:
@@ -65,20 +58,6 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_TASK_SOFT_TIME_LIMIT = 2 * 60
 CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 15
-
-# ------------------------------------------------------------------ #
-# JWT (Strict)
-# ------------------------------------------------------------------ #
-SIMPLE_JWT: dict[str, Any] = SIMPLE_JWT.copy()
-SIMPLE_JWT.update(
-    {
-        "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-        "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-        "ROTATE_REFRESH_TOKENS": True,
-        "BLACKLIST_AFTER_ROTATION": True,
-        "SIGNING_KEY": SECRET_KEY,
-    }
-)
 
 # ------------------------------------------------------------------ #
 # Auth / Allauth (Strict)
