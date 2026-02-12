@@ -6,8 +6,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Core / Security (Defaults safe for loading, strict in Prod)
 # ------------------------------------------------------------------ #
 
-ALLOWED_HOSTS = []
-CSRF_TRUSTED_ORIGINS = []
+ALLOWED_HOSTS: list = []
+CSRF_TRUSTED_ORIGINS: list = []
 
 # ------------------------------------------------------------------ #
 # Applications
