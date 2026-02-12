@@ -4,7 +4,7 @@ from typing import Any
 
 import dj_database_url
 
-from . import base
+from .base import *
 
 DEBUG = False
 
@@ -69,7 +69,7 @@ CELERY_TASK_TIME_LIMIT = CELERY_TASK_SOFT_TIME_LIMIT + 15
 # ------------------------------------------------------------------ #
 # JWT (Strict)
 # ------------------------------------------------------------------ #
-SIMPLE_JWT: dict[str, Any] = base.SIMPLE_JWT.copy()
+SIMPLE_JWT: dict[str, Any] = SIMPLE_JWT.copy()
 SIMPLE_JWT.update(
     {
         "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),

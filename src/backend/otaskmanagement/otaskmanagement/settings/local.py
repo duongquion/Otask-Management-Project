@@ -2,7 +2,7 @@ import os
 from datetime import timedelta
 from typing import Any
 
-from . import base
+from .base import *
 
 DEBUG = True
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
@@ -45,7 +45,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 # ------------------------------------------------------------------ #
 # Auth / JWT (Relaxed)
 # ------------------------------------------------------------------ #
-SIMPLE_JWT: dict[str, Any] = base.SIMPLE_JWT.copy()
+SIMPLE_JWT: dict[str, Any] = SIMPLE_JWT.copy()
 SIMPLE_JWT.update(
     {
         "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
