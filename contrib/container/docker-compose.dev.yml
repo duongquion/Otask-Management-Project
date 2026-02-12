@@ -59,26 +59,26 @@ services:
   otask-celery:
     <<: *app_base
     container_name: otask-celery
-    # command: watchmedo auto-restart 
-    #   --directory=./ 
-    #   --pattern=*.py 
-    #   --recursive 
-    #   --debug-force-polling  
-    #   -- celery -A otaskmanagement worker -l info
-    command: celery -A otaskmanagement worker -l info
+    command: watchmedo auto-restart 
+      --directory=./ 
+      --pattern=*.py 
+      --recursive 
+      --debug-force-polling  
+      -- celery -A otaskmanagement worker -l info
+    # command: celery -A otaskmanagement worker -l info
 
   otask-celery-beat:
     <<: *app_base
     container_name: otask-celery-beat
     volumes:
       - ../../src/backend/otaskmanagement:/src/backend/otaskmanagement:cached
-    # command: watchmedo auto-restart 
-    #   --directory=./ 
-    #   --pattern=*.py 
-    #   --recursive 
-    #   --debug-force-polling  
-    #   -- celery -A otaskmanagement beat -l info
-    command: celery -A otaskmanagement beat -l info
+    command: watchmedo auto-restart 
+      --directory=./ 
+      --pattern=*.py 
+      --recursive 
+      --debug-force-polling  
+      -- celery -A otaskmanagement beat -l info
+    # command: celery -A otaskmanagement beat -l info
 
   otask-client:
     build:
