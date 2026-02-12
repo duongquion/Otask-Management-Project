@@ -9,11 +9,14 @@ This file organizes routes into groups:
 """
 
 import issues.urls
+import users.urls
 from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
-from users.allauth import GoogleLogin, me_google
+from users.views.allauth import GoogleLogin
+
+# from users.views.api import UserDetailAPIView
 
 urlpatterns = [
     # -------------------------
@@ -39,7 +42,7 @@ urlpatterns = [
     # Social Authentication (Google)
     # -------------------------
     path("auth/google/login/", GoogleLogin.as_view(), name="google_login"),
-    path("auth/google/me/", me_google, name="me_google"),
+    # path("auth/user-profile/", UserDetailAPIView.as_view(), name="api-user-profile"),
     # -------------------------
     # Application Modules
     # -------------------------
@@ -47,7 +50,7 @@ urlpatterns = [
         "<uuid:project_id>/",
         include(
             [
-                path("user/", include("users.urls")),
+                path("user/", include(users.urls.user_api_urls)),
                 path("sprint/", include(issues.urls.sprint_api_urls)),
             ]
         ),

@@ -45,3 +45,4 @@ six==1.16.0
 coverage==7.6.10
 unittest-xml-reporting==3.2.0
 ruff==0.14.14
+whitenoise==6.6.0

@@ -35,7 +35,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return f"{self.email}"
 
     @property
     def full_name(self):
